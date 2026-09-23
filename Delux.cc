@@ -1,5 +1,5 @@
 --[[
-    delux.cc | Меню + Stretch + ESP + ESP2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications
+    delux.cc | Меню + Stretch + ESP + ESP2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications + Lightborn
     ШРИФТ: Gotham (единый для всего меню)
 ]]
 local Players = game:GetService("Players")
@@ -48,6 +48,7 @@ local Defaults = {
     JumpPowerValue = 50,
     BlueFogEnabled = false,
     NoclipEnabled = false,
+    LightbornEnabled = false,
     TPKillerKeybind = "NONE",
     WalkSpeedKeybind = "NONE",
     NoclipKeybind = "NONE",
@@ -814,7 +815,8 @@ local function startESP2()
             if p.Character then
                 task.spawn(createESP2, p, p.Character)
             end
-            local c            c = p.CharacterAdded:Connect(function(ch)
+            local c
+            c = p.CharacterAdded:Connect(function(ch)
                 if getgenv().ESP2Enabled then
                     task.wait(0.3)
                     createESP2(p, ch)
@@ -1059,6 +1061,102 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -----------------------------------------------------------
+-- // LIGHTBORN (защита от ослепления фонариком)
+-----------------------------------------------------------
+local lightbornStored = {}
+local lightbornConnection = nil
+
+local function applyLightborn()
+    local char = player.Character
+
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Light") then
+            local parent = obj.Parent
+            local isOurs = false
+            if parent and char then
+                if parent:IsDescendantOf(char) then
+                    isOurs = true
+                end
+            end
+
+            if not isOurs then
+                local isBright = obj.Brightness >= 4
+                local isWhiteish = (obj.Color.R > 0.85 and obj.Color.G > 0.85 and obj.Color.B > 0.85)
+                local isSpotlight = obj:IsA("SpotLight") and obj.Range > 20
+
+                if isBright or isWhiteish or isSpotlight then
+                    if not lightbornStored[obj] then
+                        lightbornStored[obj] = {
+                            Brightness = obj.Brightness,
+                            Enabled = obj.Enabled,
+                        }
+                    end
+                    obj.Enabled = false
+                    obj.Brightness = 0
+                end
+            end
+        end
+    end
+
+    -- GUI-вспышки (белые фреймы на весь экран)
+    pcall(function()
+        for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
+            if gui:IsA("ImageLabel") or gui:IsA("Frame") then
+                local isWhite = (gui.BackgroundColor3.R > 0.9 and gui.BackgroundColor3.G > 0.9 and gui.BackgroundColor3.B > 0.9)
+                local isBig = gui.AbsoluteSize.X > 500 and gui.AbsoluteSize.Y > 400
+                local isOnTop = gui.ZIndex > 50
+
+                if isWhite and isBig and isOnTop then
+                    if not lightbornStored[gui] then
+                        lightbornStored[gui] = {
+                            Visible = gui.Visible,
+                            BackgroundTransparency = gui.BackgroundTransparency,
+                        }
+                    end
+                    gui.Visible = false
+                end
+            end
+        end
+    end)
+end
+
+local function enableLightborn()
+    if lightbornConnection then return end
+    lightbornStored = {}
+
+    lightbornConnection = RunService.RenderStepped:Connect(function()
+        applyLightborn()
+    end)
+end
+
+local function disableLightborn()
+    if lightbornConnection then
+        lightbornConnection:Disconnect()
+        lightbornConnection = nil
+    end
+
+    for obj, data in pairs(lightbornStored) do
+        if obj and obj.Parent then
+            pcall(function()
+                if obj:IsA("Light") then
+                    obj.Brightness = data.Brightness
+                    obj.Enabled = data.Enabled
+                elseif obj:IsA("ImageLabel") or obj:IsA("Frame") then
+                    obj.Visible = data.Visible
+                    obj.BackgroundTransparency = data.BackgroundTransparency
+                end
+            end)
+        end
+    end
+    lightbornStored = {}
+end
+
+local function setLightborn(state)
+    getgenv().LightbornEnabled = state
+    if state then enableLightborn() else disableLightborn() end
+end
+
+-----------------------------------------------------------
 -- // FOV
 -----------------------------------------------------------
 RunService.RenderStepped:Connect(function()
@@ -1139,7 +1237,7 @@ player.CharacterAdded:Connect(function()
 end)
 
 -----------------------------------------------------------
--- // KEYBIND СИСТЕМА (с уведомлениями)
+-- // KEYBIND СИСТЕМА
 -----------------------------------------------------------
 getgenv().ListeningForKeybind = false
 getgenv().BindTarget = nil
@@ -1411,7 +1509,7 @@ ContentScroll.BackgroundTransparency = 1
 ContentScroll.BorderSizePixel = 0
 ContentScroll.ScrollBarThickness = 3
 ContentScroll.ScrollBarImageColor3 = Colors.Accent
-ContentScroll.CanvasSize = UDim2.new(0, 0, 0, 900)
+ContentScroll.CanvasSize = UDim2.new(0, 0, 0, 1000)
 ContentScroll.Parent = ContentArea
 
 local CombatScroll = Instance.new("ScrollingFrame")
@@ -1929,16 +2027,20 @@ createToggle(ContentScroll, "Keybind List", "", 270, "KeybindListEnabled", funct
     if state then rebuildKeybindList() end
 end)
 
-createButtonWithKeybind(ContentScroll, "TP KILLER", 320, "TPKillerKeybind", function()
+createToggle(ContentScroll, "Lightborn", "не ослепляться фонариком", 315, "LightbornEnabled", function(state)
+    setLightborn(state)
+end)
+
+createButtonWithKeybind(ContentScroll, "TP KILLER", 360, "TPKillerKeybind", function()
     teleportBehindKiller()
     showNotification("TP KILLER", "Teleported behind killer")
 end, "tp")
 
-createSlider(ContentScroll, "Brightness", 365, 0, 10, "FullbrightValue", function(val)
+createSlider(ContentScroll, "Brightness", 405, 0, 10, "FullbrightValue", function(val)
     if getgenv().FullbrightEnabled then applyFullbright() end
 end)
 
-createSlider(ContentScroll, "FOV", 420, 70, 120, "FOVValue", function(val) end)
+createSlider(ContentScroll, "FOV", 460, 70, 120, "FOVValue", function(val) end)
 
 -- COMBAT
 createButtonWithKeybind(CombatScroll, "WalkSpeed", 0, "WalkSpeedKeybind", function()
@@ -1980,6 +2082,7 @@ task.spawn(function()
     if getgenv().FullbrightEnabled then applyFullbright() end
     if getgenv().BlueFogEnabled then createBlueFog() end
     if getgenv().NoclipEnabled then enableNoclip() end
+    if getgenv().LightbornEnabled then enableLightborn() end
     if getgenv().KeybindListEnabled then
         KeybindListFrame.Visible = true
         rebuildKeybindList()
