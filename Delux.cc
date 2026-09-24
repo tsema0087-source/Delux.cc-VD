@@ -1,6 +1,5 @@
 --[[
     delux.cc | Меню + Stretch + ESP + ESP2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications + Lightborn
-    ШРИФТ: Gotham (единый для всего меню)
 ]]
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -29,33 +28,18 @@ local SaveFile = SaveFolder .. "/config.json"
 local hasFS = (typeof(writefile) == "function") and (typeof(readfile) == "function") and (typeof(isfile) == "function")
 if hasFS then
     pcall(function()
-        if not isfolder(SaveFolder) then
-            makefolder(SaveFolder)
-        end
+        if not isfolder(SaveFolder) then makefolder(SaveFolder) end
     end)
 end
 
 local Defaults = {
-    ESPEnabled = false,
-    ESP2Enabled = false,
-    GenESPEnabled = false,
-    PalletESPEnabled = false,
-    FullbrightEnabled = false,
-    FullbrightValue = 5,
-    FOVValue = 70,
-    WalkSpeedValue = 16,
-    JumpEnabled = false,
-    JumpPowerValue = 50,
-    BlueFogEnabled = false,
-    NoclipEnabled = false,
-    LightbornEnabled = false,
-    TPKillerKeybind = "NONE",
-    WalkSpeedKeybind = "NONE",
-    NoclipKeybind = "NONE",
-    WalkSpeedActive = false,
-    KeybindListEnabled = false,
-    KeybindListPosX = 20,
-    KeybindListPosY = 100,
+    ESPEnabled = false, ESP2Enabled = false, GenESPEnabled = false, PalletESPEnabled = false,
+    FullbrightEnabled = false, FullbrightValue = 5, FOVValue = 70,
+    WalkSpeedValue = 16, JumpEnabled = false, JumpPowerValue = 50,
+    BlueFogEnabled = false, NoclipEnabled = false, LightbornEnabled = false,
+    TPKillerKeybind = "NONE", WalkSpeedKeybind = "NONE", NoclipKeybind = "NONE",
+    WalkSpeedActive = false, KeybindListEnabled = false,
+    KeybindListPosX = 20, KeybindListPosY = 100,
 }
 
 local function findKeyCodeByName(name)
@@ -64,9 +48,7 @@ local function findKeyCodeByName(name)
     local ok, kc = pcall(function() return Enum.KeyCode[name] end)
     if ok and kc then return kc end
     for _, code in ipairs(Enum.KeyCode:GetEnumItems()) do
-        if code.Name:lower() == name:lower() then
-            return code
-        end
+        if code.Name:lower() == name:lower() then return code end
     end
     return nil
 end
@@ -77,7 +59,6 @@ local function loadConfig()
     if not ok or not content or content == "" then return end
     local ok2, data = pcall(function() return game:GetService("HttpService"):JSONDecode(content) end)
     if not ok2 or typeof(data) ~= "table" then return end
-
     for k, v in pairs(data) do
         if k == "TPKillerKeybind" or k == "WalkSpeedKeybind" or k == "NoclipKeybind" then
             if typeof(v) == "string" and v ~= "NONE" then
@@ -97,29 +78,17 @@ local function saveConfig()
     local data = {}
     for k, v in pairs(Defaults) do
         local val = getgenv()[k]
-        if val == nil then
-            data[k] = "NONE"
-        elseif typeof(val) == "EnumItem" then
-            data[k] = val.Name
-        else
-            data[k] = val
-        end
+        if val == nil then data[k] = "NONE"
+        elseif typeof(val) == "EnumItem" then data[k] = val.Name
+        else data[k] = val end
     end
-    local ok, encoded = pcall(function()
-        return game:GetService("HttpService"):JSONEncode(data)
-    end)
-    if ok and encoded then
-        pcall(writefile, SaveFile, encoded)
-    end
+    local ok, encoded = pcall(function() return game:GetService("HttpService"):JSONEncode(data) end)
+    if ok and encoded then pcall(writefile, SaveFile, encoded) end
 end
 
 for k, v in pairs(Defaults) do
     if getgenv()[k] == nil then
-        if v == "NONE" then
-            getgenv()[k] = nil
-        else
-            getgenv()[k] = v
-        end
+        if v == "NONE" then getgenv()[k] = nil else getgenv()[k] = v end
     end
 end
 loadConfig()
@@ -138,22 +107,14 @@ getgenv().StretchActive = true
 -- // Цвета
 -----------------------------------------------------------
 local Colors = {
-    Background = Color3.fromRGB(20, 20, 20),
-    Sidebar = Color3.fromRGB(15, 15, 15),
-    Element = Color3.fromRGB(35, 35, 35),
-    Text = Color3.fromRGB(240, 240, 240),
-    TextDim = Color3.fromRGB(150, 150, 150),
-    ToggleOff = Color3.fromRGB(60, 60, 60),
-    ToggleOn = Color3.fromRGB(255, 255, 255),
-    Accent = Color3.fromRGB(0, 150, 255),
-    Accent2 = Color3.fromRGB(150, 80, 255),
-    Button = Color3.fromRGB(45, 45, 55),
-    ButtonHover = Color3.fromRGB(60, 60, 75),
-    GenGreen = Color3.fromRGB(0, 255, 80),
-    PalletOrange = Color3.fromRGB(255, 130, 20),
-    KillerRed = Color3.fromRGB(255, 40, 40),
-    SurvivorGreen = Color3.fromRGB(0, 255, 80),
-    KeybindBG = Color3.fromRGB(50, 50, 60),
+    Background = Color3.fromRGB(20, 20, 20), Sidebar = Color3.fromRGB(15, 15, 15),
+    Element = Color3.fromRGB(35, 35, 35), Text = Color3.fromRGB(240, 240, 240),
+    TextDim = Color3.fromRGB(150, 150, 150), ToggleOff = Color3.fromRGB(60, 60, 60),
+    ToggleOn = Color3.fromRGB(255, 255, 255), Accent = Color3.fromRGB(0, 150, 255),
+    Accent2 = Color3.fromRGB(150, 80, 255), Button = Color3.fromRGB(45, 45, 55),
+    ButtonHover = Color3.fromRGB(60, 60, 75), GenGreen = Color3.fromRGB(0, 255, 80),
+    PalletOrange = Color3.fromRGB(255, 130, 20), KillerRed = Color3.fromRGB(255, 40, 40),
+    SurvivorGreen = Color3.fromRGB(0, 255, 80), KeybindBG = Color3.fromRGB(50, 50, 60),
     KeybindListening = Color3.fromRGB(255, 150, 0),
 }
 
@@ -475,7 +436,6 @@ task.spawn(function()
             end
         end
         speedLabel.Text = speed .. " spd"
-
         task.wait(0.5)
     end
 end)
@@ -497,13 +457,11 @@ local function getTeamName(targetPlayer)
         local r = check(targetPlayer.Team.Name)
         if r then return r end
     end
-
     for _, attrName in ipairs({"Team", "team", "Role", "role", "GameTeam", "gameteam", "RoleName", "rolename", "TeamName", "teamname"}) do
         local a = targetPlayer:GetAttribute(attrName)
         local r = check(a)
         if r then return r end
     end
-
     local ls = targetPlayer:FindFirstChild("leaderstats")
     if ls then
         for _, child in ipairs(ls:GetChildren()) do
@@ -515,7 +473,6 @@ local function getTeamName(targetPlayer)
             end
         end
     end
-
     local char = targetPlayer.Character
     if char then
         for _, obj in ipairs(char:GetDescendants()) do
@@ -523,7 +480,6 @@ local function getTeamName(targetPlayer)
             if r then return r end
         end
     end
-
     for _, child in ipairs(targetPlayer:GetChildren()) do
         local r = check(child.Name)
         if r then return r end
@@ -532,24 +488,17 @@ local function getTeamName(targetPlayer)
             if r2 then return r2 end
         end
     end
-
     return nil
 end
 
 -----------------------------------------------------------
--- // ESP ДЛЯ ИГРОКОВ (СТАРЫЙ)
+-- // ESP СТАРЫЙ
 -----------------------------------------------------------
 local Settings = {
-    KillerColor1 = Color3.fromRGB(80, 0, 0),
-    KillerColor2 = Color3.fromRGB(255, 40, 40),
-    SurvivorColor1 = Color3.fromRGB(0, 0, 70),
-    SurvivorColor2 = Color3.fromRGB(0, 150, 255),
-    KillerParticle = Color3.fromRGB(255, 60, 60),
-    SurvivorParticle = Color3.fromRGB(0, 100, 255),
-    SpawnRate = 0.15,
-    BoxThickness = 3.5,
-    RotationSpeed = 3,
-    MaxDistance = 2500,
+    KillerColor1 = Color3.fromRGB(80, 0, 0), KillerColor2 = Color3.fromRGB(255, 40, 40),
+    SurvivorColor1 = Color3.fromRGB(0, 0, 70), SurvivorColor2 = Color3.fromRGB(0, 150, 255),
+    KillerParticle = Color3.fromRGB(255, 60, 60), SurvivorParticle = Color3.fromRGB(0, 100, 255),
+    SpawnRate = 0.15, BoxThickness = 3.5, RotationSpeed = 3, MaxDistance = 2500,
 }
 
 local ParticleFolder = Instance.new("Folder", workspace)
@@ -561,20 +510,14 @@ local espPerPlayer = {}
 
 local function getTeamColors(targetPlayer)
     local team = getTeamName(targetPlayer)
-    if team == "survivor" then
-        return Settings.SurvivorColor1, Settings.SurvivorColor2, Settings.SurvivorParticle
-    end
-    if team == "killer" then
-        return Settings.KillerColor1, Settings.KillerColor2, Settings.KillerParticle
-    end
+    if team == "survivor" then return Settings.SurvivorColor1, Settings.SurvivorColor2, Settings.SurvivorParticle end
+    if team == "killer" then return Settings.KillerColor1, Settings.KillerColor2, Settings.KillerParticle end
     return Color3.fromRGB(60,60,60), Color3.fromRGB(160,160,160), Color3.fromRGB(120,120,120)
 end
 
 local function RemoveVanillaName(char)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-    end
+    if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
 end
 
 local function SpawnNeonParticle(pos, particleColor)
@@ -588,10 +531,8 @@ local function SpawnNeonParticle(pos, particleColor)
     part.Color = particleColor
     part.Parent = ParticleFolder
 
-    local tween = TweenService:Create(part,
-        TweenInfo.new(1.8, Enum.EasingStyle.Quart),
-        { Position = part.Position + Vector3.new(0, 7, 0), Transparency = 1, Size = Vector3.new(0,0,0) }
-    )
+    local tween = TweenService:Create(part, TweenInfo.new(1.8, Enum.EasingStyle.Quart),
+        { Position = part.Position + Vector3.new(0, 7, 0), Transparency = 1, Size = Vector3.new(0,0,0) })
     tween:Play()
     Debris:AddItem(part, 1.8)
 end
@@ -668,9 +609,7 @@ local function createESPForChar(targetPlayer, char)
 
     task.spawn(function()
         local ok2, img = pcall(function()
-            return Players:GetUserThumbnailAsync(userId,
-                Enum.ThumbnailType.HeadShot,
-                Enum.ThumbnailSize.Size150x150)
+            return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
         end)
         if ok2 then avatar.Image = img end
     end)
@@ -686,23 +625,16 @@ local function createESPForChar(targetPlayer, char)
     nameLabel.Font = FONT_BOLD
     nameLabel.Parent = container
 
-    pcall(function()
-        nameLabel.FontFace = Font.new("rbxassetid://11322590111")
-    end)
-
     task.spawn(function()
         while boxGui.Parent do
             local dist = (Camera.CFrame.Position - root.Position).Magnitude
-            if dist < 300 then
-                SpawnNeonParticle(root.Position, particleColor)
-            end
+            if dist < 300 then SpawnNeonParticle(root.Position, particleColor) end
             task.wait(Settings.SpawnRate)
         end
     end)
 
     table.insert(espInstances, boxGui)
     table.insert(espInstances, nameGui)
-
     espPerPlayer[targetPlayer] = {boxGui = boxGui, nameGui = nameGui}
 
     local conn
@@ -720,9 +652,7 @@ end
 local function startESP()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= player then
-            if p.Character then
-                task.spawn(createESPForChar, p, p.Character)
-            end
+            if p.Character then task.spawn(createESPForChar, p, p.Character) end
             local c
             c = p.CharacterAdded:Connect(function(ch)
                 if getgenv().ESPEnabled then
@@ -733,7 +663,6 @@ local function startESP()
             table.insert(espConnections, c)
         end
     end
-
     local pac
     pac = Players.PlayerAdded:Connect(function(p)
         if p == player then return end
@@ -780,11 +709,7 @@ local function createESP2(targetPlayer, char)
 
     local team = getTeamName(targetPlayer)
     local color
-    if team == "killer" then
-        color = Colors.KillerRed
-    else
-        color = Colors.SurvivorGreen
-    end
+    if team == "killer" then color = Colors.KillerRed else color = Colors.SurvivorGreen end
 
     local highlight = Instance.new("Highlight")
     highlight.Name = "delux_ESP2Highlight"
@@ -812,9 +737,7 @@ end
 local function startESP2()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= player then
-            if p.Character then
-                task.spawn(createESP2, p, p.Character)
-            end
+            if p.Character then task.spawn(createESP2, p, p.Character) end
             local c
             c = p.CharacterAdded:Connect(function(ch)
                 if getgenv().ESP2Enabled then
@@ -825,7 +748,6 @@ local function startESP2()
             table.insert(esp2Connections, c)
         end
     end
-
     local pac
     pac = Players.PlayerAdded:Connect(function(p)
         if p == player then return end
@@ -864,9 +786,7 @@ local genTracked = {}
 
 local function isGenerator(obj)
     if not obj or (not obj:IsA("Model") and not obj:IsA("BasePart")) then return false end
-    local n = string.lower(obj.Name)
-    if string.find(n, "generator") then return true end
-    return false
+    return string.find(string.lower(obj.Name), "generator") ~= nil
 end
 
 local function createGenESP(model)
@@ -949,9 +869,7 @@ local palletTracked = {}
 
 local function isPallet(obj)
     if not obj or (not obj:IsA("Model") and not obj:IsA("BasePart")) then return false end
-    local n = string.lower(obj.Name)
-    if string.find(n, "pallet") then return true end
-    return false
+    return string.find(string.lower(obj.Name), "pallet") ~= nil
 end
 
 local function createPalletESP(model)
@@ -1031,10 +949,8 @@ end
 -- // FULLBRIGHT
 -----------------------------------------------------------
 local originalLighting = {
-    Brightness = Lighting.Brightness,
-    ClockTime = Lighting.ClockTime,
-    GlobalShadows = Lighting.GlobalShadows,
-    Ambient = Lighting.Ambient,
+    Brightness = Lighting.Brightness, ClockTime = Lighting.ClockTime,
+    GlobalShadows = Lighting.GlobalShadows, Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient,
 }
 
@@ -1061,115 +977,107 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -----------------------------------------------------------
--- // LIGHTBORN (защита от ослепления фонариком/вспышками)
+-- // LIGHTBORN V2 (расширенная защита от ослепления)
 -----------------------------------------------------------
 local lightbornStored = {}
-local lightbornConnection = nil
+local lightbornConn = nil
+local lightbornLightingOrig = nil
 
-local function isLightOurs(light)
+local function isLightOurs(obj)
     local char = player.Character
     if not char then return false end
-    local parent = light.Parent
-    if not parent then return false end
-    if parent:IsDescendantOf(char) then return true end
-    return false
+    return obj:IsDescendantOf(char)
 end
 
 local function storeOriginal(obj)
     if lightbornStored[obj] then return end
-
     if obj:IsA("Light") then
-        lightbornStored[obj] = {
-            type = "Light",
-            Brightness = obj.Brightness,
-            Enabled = obj.Enabled,
-            Range = obj.Range,
-        }
+        lightbornStored[obj] = {t = "Light", Brightness = obj.Brightness, Enabled = obj.Enabled, Range = obj.Range}
     elseif obj:IsA("Highlight") then
-        lightbornStored[obj] = {
-            type = "Highlight",
-            FillTransparency = obj.FillTransparency,
-            OutlineTransparency = obj.OutlineTransparency,
-            Enabled = obj.Enabled,
-        }
+        lightbornStored[obj] = {t = "Highlight", FillTransparency = obj.FillTransparency, OutlineTransparency = obj.OutlineTransparency, Enabled = obj.Enabled}
     elseif obj:IsA("BloomEffect") then
-        lightbornStored[obj] = {
-            type = "BloomEffect",
-            Intensity = obj.Intensity,
-            Enabled = obj.Enabled,
-        }
+        lightbornStored[obj] = {t = "BloomEffect", Intensity = obj.Intensity, Enabled = obj.Enabled}
+    elseif obj:IsA("SunRaysEffect") then
+        lightbornStored[obj] = {t = "SunRaysEffect", Intensity = obj.Intensity, Spread = obj.Spread, Enabled = obj.Enabled}
     elseif obj:IsA("ColorCorrectionEffect") then
-        lightbornStored[obj] = {
-            type = "ColorCorrectionEffect",
-            Brightness = obj.Brightness,
-            Contrast = obj.Contrast,
-            Enabled = obj.Enabled,
-        }
-    elseif obj:IsA("ImageLabel") or obj:IsA("Frame") then
-        lightbornStored[obj] = {
-            type = "Gui",
-            Visible = obj.Visible,
-            BackgroundTransparency = obj.BackgroundTransparency,
-            ImageTransparency = obj.ImageTransparency or 0,
-        }
+        lightbornStored[obj] = {t = "ColorCorrectionEffect", Brightness = obj.Brightness, Contrast = obj.Contrast, Saturation = obj.Saturation, TintColor = obj.TintColor, Enabled = obj.Enabled}
+    elseif obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("TextLabel") then
+        lightbornStored[obj] = {t = "Gui", Visible = obj.Visible, BackgroundTransparency = obj.BackgroundTransparency, ImageTransparency = obj.ImageTransparency or 0, TextTransparency = obj.TextTransparency or 0}
+    elseif obj:IsA("Atmosphere") then
+        lightbornStored[obj] = {t = "Atmosphere", Density = obj.Density, Color = obj.Color}
     end
 end
 
 local function applyLightborn()
-    -- 1. Свет
     for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Light") then
-            if not isLightOurs(obj) then
-                local isWhiteish = (obj.Color.R > 0.8 and obj.Color.G > 0.8 and obj.Color.B > 0.8)
-                local isBright = obj.Brightness >= 2
-                local isSpotlight = obj:IsA("SpotLight") and obj.Range > 15
-                local isPointlight = obj:IsA("PointLight") and obj.Range > 15
-                local isSurface = obj:IsA("SurfaceLight")
-
-                if isWhiteish or isBright or isSpotlight or isPointlight or isSurface then
-                    storeOriginal(obj)
-                    obj.Enabled = false
-                end
-            end
-        end
-    end
-
-    -- 2. Highlight
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("Highlight") then
-            if obj.FillTransparency < 0.5 or obj.OutlineTransparency < 0.3 then
+        if obj:IsA("Light") and not isLightOurs(obj) then
+            local isWhiteish = (obj.Color.R > 0.8 and obj.Color.G > 0.8 and obj.Color.B > 0.8)
+            local isBright = obj.Brightness >= 1.5
+            local isBigRange = obj.Range >= 10
+            if isWhiteish or isBright or isBigRange then
                 storeOriginal(obj)
                 obj.Enabled = false
             end
         end
     end
 
-    -- 3. Эффекты в Lighting
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Highlight") then
+            if obj.FillTransparency < 0.6 or obj.OutlineTransparency < 0.4 then
+                storeOriginal(obj)
+                obj.Enabled = false
+            end
+        end
+    end
+
     for _, obj in ipairs(Lighting:GetChildren()) do
-        if obj:IsA("BloomEffect") then
+        if obj:IsA("BloomEffect") or obj:IsA("SunRaysEffect") then
             storeOriginal(obj)
             obj.Enabled = false
         elseif obj:IsA("ColorCorrectionEffect") then
-            if obj.Brightness > 0.05 or obj.Contrast > 0.1 then
+            if obj.Brightness > 0 or obj.Contrast > 0.05 or obj.Saturation > 0.1 then
                 storeOriginal(obj)
                 obj.Enabled = false
             end
         end
     end
 
-    -- 4. GUI-вспышки
+    if not lightbornLightingOrig then
+        lightbornLightingOrig = {
+            Ambient = Lighting.Ambient, OutdoorAmbient = Lighting.OutdoorAmbient,
+            Brightness = Lighting.Brightness, FogColor = Lighting.FogColor, FogEnd = Lighting.FogEnd,
+        }
+    end
+    if Lighting.Ambient.R > 0.9 and Lighting.Ambient.G > 0.9 and Lighting.Ambient.B > 0.9 then
+        Lighting.Ambient = Color3.fromRGB(70, 70, 70)
+    end
+    if Lighting.OutdoorAmbient.R > 0.9 and Lighting.OutdoorAmbient.G > 0.9 and Lighting.OutdoorAmbient.B > 0.9 then
+        Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 90)
+    end
+
     pcall(function()
         for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
-            if (gui:IsA("ImageLabel") or gui:IsA("Frame")) then
-                local isWhite = (gui.BackgroundColor3.R > 0.9 and gui.BackgroundColor3.G > 0.9 and gui.BackgroundColor3.B > 0.9)
-                local isBig = gui.AbsoluteSize.X > 400 and gui.AbsoluteSize.Y > 300
-                local isOnTop = gui.ZIndex > 20
+            if gui:IsA("ImageLabel") or gui:IsA("Frame") then
+                local isWhite = (gui.BackgroundColor3.R > 0.85 and gui.BackgroundColor3.G > 0.85 and gui.BackgroundColor3.B > 0.85)
                 local hasWhiteImage = false
-                if gui:IsA("ImageLabel") and gui.ImageColor3 then
-                    hasWhiteImage = (gui.ImageColor3.R > 0.9 and gui.ImageColor3.G > 0.9 and gui.ImageColor3.B > 0.9)
+                if gui:IsA("ImageLabel") then
+                    hasWhiteImage = (gui.ImageColor3.R > 0.85 and gui.ImageColor3.G > 0.85 and gui.ImageColor3.B > 0.85)
                 end
+                local isBig = gui.AbsoluteSize.X > 300 and gui.AbsoluteSize.Y > 200
+                if (isWhite or hasWhiteImage) and isBig then
+                    storeOriginal(gui)
+                    gui.Visible = false
+                end
+            end
+        end
+    end)
 
-                if (isWhite or hasWhiteImage) and isBig and isOnTop then
+    pcall(function()
+        for _, gui in ipairs(CoreGui:GetDescendants()) do
+            if gui:IsA("ImageLabel") or gui:IsA("Frame") then
+                local isWhite = (gui.BackgroundColor3.R > 0.85 and gui.BackgroundColor3.G > 0.85 and gui.BackgroundColor3.B > 0.85)
+                local isBig = gui.AbsoluteSize.X > 300 and gui.AbsoluteSize.Y > 200
+                if isWhite and isBig then
                     storeOriginal(gui)
                     gui.Visible = false
                 end
@@ -1179,49 +1087,63 @@ local function applyLightborn()
 end
 
 local function enableLightborn()
-    if lightbornConnection then return end
+    if lightbornConn then return end
     lightbornStored = {}
-
-    lightbornConnection = RunService.RenderStepped:Connect(function()
+    lightbornLightingOrig = nil
+    applyLightborn()
+    lightbornConn = RunService.RenderStepped:Connect(function()
         applyLightborn()
     end)
 end
 
 local function disableLightborn()
-    if lightbornConnection then
-        lightbornConnection:Disconnect()
-        lightbornConnection = nil
-    end
+    if lightbornConn then lightbornConn:Disconnect(); lightbornConn = nil end
 
     for obj, data in pairs(lightbornStored) do
         if obj and obj.Parent then
             pcall(function()
-                if data.type == "Light" then
+                if data.t == "Light" then
                     obj.Brightness = data.Brightness
                     obj.Enabled = data.Enabled
                     obj.Range = data.Range
-                elseif data.type == "Highlight" then
+                elseif data.t == "Highlight" then
                     obj.FillTransparency = data.FillTransparency
                     obj.OutlineTransparency = data.OutlineTransparency
                     obj.Enabled = data.Enabled
-                elseif data.type == "BloomEffect" then
+                elseif data.t == "BloomEffect" then
                     obj.Intensity = data.Intensity
                     obj.Enabled = data.Enabled
-                elseif data.type == "ColorCorrectionEffect" then
+                elseif data.t == "SunRaysEffect" then
+                    obj.Intensity = data.Intensity
+                    obj.Spread = data.Spread
+                    obj.Enabled = data.Enabled
+                elseif data.t == "ColorCorrectionEffect" then
                     obj.Brightness = data.Brightness
                     obj.Contrast = data.Contrast
+                    obj.Saturation = data.Saturation
+                    obj.TintColor = data.TintColor
                     obj.Enabled = data.Enabled
-                elseif data.type == "Gui" then
+                elseif data.t == "Gui" then
                     obj.Visible = data.Visible
                     obj.BackgroundTransparency = data.BackgroundTransparency
-                    if obj:IsA("ImageLabel") then
-                        obj.ImageTransparency = data.ImageTransparency
-                    end
+                    if obj:IsA("ImageLabel") then obj.ImageTransparency = data.ImageTransparency end
+                    if obj:IsA("TextLabel") then obj.TextTransparency = data.TextTransparency end
                 end
             end)
         end
     end
+
+    if lightbornLightingOrig then
+        pcall(function()
+            Lighting.Ambient = lightbornLightingOrig.Ambient
+            Lighting.OutdoorAmbient = lightbornLightingOrig.OutdoorAmbient
+            Lighting.Brightness = lightbornLightingOrig.Brightness
+            Lighting.FogColor = lightbornLightingOrig.FogColor
+            Lighting.FogEnd = lightbornLightingOrig.FogEnd
+        end)
+    end
     lightbornStored = {}
+    lightbornLightingOrig = nil
 end
 
 local function setLightborn(state)
@@ -1234,13 +1156,11 @@ end
 -----------------------------------------------------------
 RunService.RenderStepped:Connect(function()
     local targetFov = getgenv().FOVValue or 70
-    if Camera.FieldOfView ~= targetFov then
-        Camera.FieldOfView = targetFov
-    end
+    if Camera.FieldOfView ~= targetFov then Camera.FieldOfView = targetFov end
 end)
 
 -----------------------------------------------------------
--- // TP К КИЛЛЕРУ
+-- // TP
 -----------------------------------------------------------
 local function findKiller()
     for _, p in pairs(Players:GetPlayers()) do
@@ -1260,7 +1180,6 @@ local function teleportBehindKiller()
     if not myChar then return end
     local myHRP = myChar:FindFirstChild("HumanoidRootPart")
     if not myHRP then return end
-
     local backDir = -kHRP.CFrame.LookVector
     local targetPos = kHRP.Position + backDir * 4
     myHRP.CFrame = CFrame.new(targetPos, targetPos + kHRP.CFrame.LookVector)
@@ -1277,24 +1196,17 @@ local function enableNoclip()
         local char = player.Character
         if not char then return end
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
-            end
+            if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end
         end
     end)
 end
 
 local function disableNoclip()
-    if noclipConn then
-        noclipConn:Disconnect()
-        noclipConn = nil
-    end
+    if noclipConn then noclipConn:Disconnect(); noclipConn = nil end
     local char = player.Character
     if char then
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
+            if part:IsA("BasePart") then part.CanCollide = true end
         end
     end
 end
@@ -1310,7 +1222,7 @@ player.CharacterAdded:Connect(function()
 end)
 
 -----------------------------------------------------------
--- // KEYBIND СИСТЕМА
+-- // KEYBIND
 -----------------------------------------------------------
 getgenv().ListeningForKeybind = false
 getgenv().BindTarget = nil
@@ -1328,14 +1240,11 @@ UserInputService.InputBegan:Connect(function(input, gp)
 
         local bindName = ""
         if getgenv().BindTarget == "tp" then
-            getgenv().TPKillerKeybind = input.KeyCode
-            bindName = "TP KILLER"
+            getgenv().TPKillerKeybind = input.KeyCode; bindName = "TP KILLER"
         elseif getgenv().BindTarget == "walkspeed" then
-            getgenv().WalkSpeedKeybind = input.KeyCode
-            bindName = "WALKSPEED"
+            getgenv().WalkSpeedKeybind = input.KeyCode; bindName = "WALKSPEED"
         elseif getgenv().BindTarget == "noclip" then
-            getgenv().NoclipKeybind = input.KeyCode
-            bindName = "NOCLIP"
+            getgenv().NoclipKeybind = input.KeyCode; bindName = "NOCLIP"
         end
 
         getgenv().ListeningForKeybind = false
@@ -1374,12 +1283,7 @@ end)
 -----------------------------------------------------------
 -- // СИНИЙ ТУМАН
 -----------------------------------------------------------
-local origFog = {
-    FogColor = Lighting.FogColor,
-    FogStart = Lighting.FogStart,
-    FogEnd = Lighting.FogEnd,
-}
-
+local origFog = { FogColor = Lighting.FogColor, FogStart = Lighting.FogStart, FogEnd = Lighting.FogEnd }
 local blueFogAtmosphere = nil
 
 local function createBlueFog()
@@ -1427,7 +1331,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -----------------------------------------------------------
--- // COMBAT SYSTEM
+-- // COMBAT
 -----------------------------------------------------------
 local function applyCombat()
     local char = player.Character
@@ -1436,22 +1340,14 @@ local function applyCombat()
     if not hum then return end
 
     local targetSpeed = 16
-    if getgenv().WalkSpeedActive then
-        targetSpeed = getgenv().WalkSpeedValue
-    end
-    if hum.WalkSpeed ~= targetSpeed then
-        hum.WalkSpeed = targetSpeed
-    end
+    if getgenv().WalkSpeedActive then targetSpeed = getgenv().WalkSpeedValue end
+    if hum.WalkSpeed ~= targetSpeed then hum.WalkSpeed = targetSpeed end
 
     if hum.UseJumpPower then
-        if hum.JumpPower ~= getgenv().JumpPowerValue then
-            hum.JumpPower = getgenv().JumpPowerValue
-        end
+        if hum.JumpPower ~= getgenv().JumpPowerValue then hum.JumpPower = getgenv().JumpPowerValue end
     else
         local newHeight = (getgenv().JumpPowerValue ^ 2) / (2 * workspace.Gravity)
-        if math.abs(hum.JumpHeight - newHeight) > 0.1 then
-            hum.JumpHeight = newHeight
-        end
+        if math.abs(hum.JumpHeight - newHeight) > 0.1 then hum.JumpHeight = newHeight end
     end
 
     if getgenv().JumpEnabled then
@@ -1616,9 +1512,7 @@ end
 VisualBtn.MouseButton1Click:Connect(showVisual)
 CombatBtn.MouseButton1Click:Connect(showCombat)
 
--- ============================================
 -- KEYBIND LIST
--- ============================================
 local KeybindListFrame = Instance.new("Frame")
 KeybindListFrame.Name = "KeybindList"
 KeybindListFrame.Size = UDim2.new(0, 220, 0, 60)
@@ -1685,16 +1579,9 @@ local function rebuildKeybindList()
     kbRows = {}
 
     local entries = {}
-
-    if getgenv().TPKillerKeybind then
-        table.insert(entries, {name = "TP KILLER", key = getgenv().TPKillerKeybind})
-    end
-    if getgenv().WalkSpeedKeybind then
-        table.insert(entries, {name = "WALKSPEED", key = getgenv().WalkSpeedKeybind})
-    end
-    if getgenv().NoclipKeybind then
-        table.insert(entries, {name = "NOCLIP", key = getgenv().NoclipKeybind})
-    end
+    if getgenv().TPKillerKeybind then table.insert(entries, {name = "TP KILLER", key = getgenv().TPKillerKeybind}) end
+    if getgenv().WalkSpeedKeybind then table.insert(entries, {name = "WALKSPEED", key = getgenv().WalkSpeedKeybind}) end
+    if getgenv().NoclipKeybind then table.insert(entries, {name = "NOCLIP", key = getgenv().NoclipKeybind}) end
 
     if #entries == 0 then
         local emptyLabel = Instance.new("TextLabel")
@@ -1723,7 +1610,6 @@ local function rebuildKeybindList()
         local nameLbl = Instance.new("TextLabel")
         nameLbl.Text = entry.name
         nameLbl.Size = UDim2.new(0.6, 0, 1, 0)
-        nameLbl.Position = UDim2.new(0, 0, 0, 0)
         nameLbl.BackgroundTransparency = 1
         nameLbl.TextColor3 = Colors.Accent
         nameLbl.Font = FONT_BOLD
@@ -1744,7 +1630,6 @@ local function rebuildKeybindList()
 
         table.insert(kbRows, row)
     end
-
     local totalHeight = #entries * 22
     KbList.Size = UDim2.new(1, -20, 0, totalHeight)
     KeybindListFrame.Size = UDim2.new(0, 220, 0, 60 + totalHeight)
@@ -1752,9 +1637,7 @@ end
 
 task.spawn(function()
     while KeybindListFrame do
-        if getgenv().KeybindListEnabled then
-            rebuildKeybindList()
-        end
+        if getgenv().KeybindListEnabled then rebuildKeybindList() end
         task.wait(0.3)
     end
 end)
@@ -1765,9 +1648,7 @@ KeybindListFrame:GetPropertyChangedSignal("Position"):Connect(function()
     saveConfig()
 end)
 
--- ============================================
--- РЕГИСТРИРОВАНИЕ UI
--- ============================================
+-- UI
 local ToggleRegistry = {}
 local SliderRegistry = {}
 local KeybindUIRegistry = {}
@@ -2128,9 +2009,7 @@ createToggle(CombatScroll, "Jump", "", 100, "JumpEnabled", function(state)
     local char = player.Character
     if char then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, state)
-        end
+        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Jumping, state) end
     end
 end)
 
@@ -2143,11 +2022,10 @@ createButtonWithKeybind(CombatScroll, "Noclip", 200, "NoclipKeybind", function()
 end, "noclip")
 
 -----------------------------------------------------------
--- // АВТОПРИМЕНЕНИЕ ПРИ СТАРТЕ
+-- // АВТОПРИМЕНЕНИЕ
 -----------------------------------------------------------
 task.spawn(function()
     task.wait(1)
-
     if getgenv().ESPEnabled then startESP() end
     if getgenv().ESP2Enabled then startESP2() end
     if getgenv().GenESPEnabled then startGenESP() end
@@ -2160,11 +2038,9 @@ task.spawn(function()
         KeybindListFrame.Visible = true
         rebuildKeybindList()
     end
-
     for key, updater in pairs(ToggleRegistry) do pcall(updater) end
     for key, updater in pairs(SliderRegistry) do pcall(updater) end
     for key, updater in pairs(KeybindUIRegistry) do pcall(updater) end
-
     Camera.FieldOfView = getgenv().FOVValue or 70
 end)
 
