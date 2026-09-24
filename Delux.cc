@@ -1061,58 +1061,116 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -----------------------------------------------------------
--- // LIGHTBORN (защита от ослепления фонариком)
+-- // LIGHTBORN (защита от ослепления фонариком/вспышками)
 -----------------------------------------------------------
 local lightbornStored = {}
 local lightbornConnection = nil
 
-local function applyLightborn()
+local function isLightOurs(light)
     local char = player.Character
+    if not char then return false end
+    local parent = light.Parent
+    if not parent then return false end
+    if parent:IsDescendantOf(char) then return true end
+    return false
+end
 
+local function storeOriginal(obj)
+    if lightbornStored[obj] then return end
+
+    if obj:IsA("Light") then
+        lightbornStored[obj] = {
+            type = "Light",
+            Brightness = obj.Brightness,
+            Enabled = obj.Enabled,
+            Range = obj.Range,
+        }
+    elseif obj:IsA("Highlight") then
+        lightbornStored[obj] = {
+            type = "Highlight",
+            FillTransparency = obj.FillTransparency,
+            OutlineTransparency = obj.OutlineTransparency,
+            Enabled = obj.Enabled,
+        }
+    elseif obj:IsA("BloomEffect") then
+        lightbornStored[obj] = {
+            type = "BloomEffect",
+            Intensity = obj.Intensity,
+            Enabled = obj.Enabled,
+        }
+    elseif obj:IsA("ColorCorrectionEffect") then
+        lightbornStored[obj] = {
+            type = "ColorCorrectionEffect",
+            Brightness = obj.Brightness,
+            Contrast = obj.Contrast,
+            Enabled = obj.Enabled,
+        }
+    elseif obj:IsA("ImageLabel") or obj:IsA("Frame") then
+        lightbornStored[obj] = {
+            type = "Gui",
+            Visible = obj.Visible,
+            BackgroundTransparency = obj.BackgroundTransparency,
+            ImageTransparency = obj.ImageTransparency or 0,
+        }
+    end
+end
+
+local function applyLightborn()
+    -- 1. Свет
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("Light") then
-            local parent = obj.Parent
-            local isOurs = false
-            if parent and char then
-                if parent:IsDescendantOf(char) then
-                    isOurs = true
-                end
-            end
+            if not isLightOurs(obj) then
+                local isWhiteish = (obj.Color.R > 0.8 and obj.Color.G > 0.8 and obj.Color.B > 0.8)
+                local isBright = obj.Brightness >= 2
+                local isSpotlight = obj:IsA("SpotLight") and obj.Range > 15
+                local isPointlight = obj:IsA("PointLight") and obj.Range > 15
+                local isSurface = obj:IsA("SurfaceLight")
 
-            if not isOurs then
-                local isBright = obj.Brightness >= 4
-                local isWhiteish = (obj.Color.R > 0.85 and obj.Color.G > 0.85 and obj.Color.B > 0.85)
-                local isSpotlight = obj:IsA("SpotLight") and obj.Range > 20
-
-                if isBright or isWhiteish or isSpotlight then
-                    if not lightbornStored[obj] then
-                        lightbornStored[obj] = {
-                            Brightness = obj.Brightness,
-                            Enabled = obj.Enabled,
-                        }
-                    end
+                if isWhiteish or isBright or isSpotlight or isPointlight or isSurface then
+                    storeOriginal(obj)
                     obj.Enabled = false
-                    obj.Brightness = 0
                 end
             end
         end
     end
 
-    -- GUI-вспышки (белые фреймы на весь экран)
+    -- 2. Highlight
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Highlight") then
+            if obj.FillTransparency < 0.5 or obj.OutlineTransparency < 0.3 then
+                storeOriginal(obj)
+                obj.Enabled = false
+            end
+        end
+    end
+
+    -- 3. Эффекты в Lighting
+    for _, obj in ipairs(Lighting:GetChildren()) do
+        if obj:IsA("BloomEffect") then
+            storeOriginal(obj)
+            obj.Enabled = false
+        elseif obj:IsA("ColorCorrectionEffect") then
+            if obj.Brightness > 0.05 or obj.Contrast > 0.1 then
+                storeOriginal(obj)
+                obj.Enabled = false
+            end
+        end
+    end
+
+    -- 4. GUI-вспышки
     pcall(function()
         for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
-            if gui:IsA("ImageLabel") or gui:IsA("Frame") then
+            if (gui:IsA("ImageLabel") or gui:IsA("Frame")) then
                 local isWhite = (gui.BackgroundColor3.R > 0.9 and gui.BackgroundColor3.G > 0.9 and gui.BackgroundColor3.B > 0.9)
-                local isBig = gui.AbsoluteSize.X > 500 and gui.AbsoluteSize.Y > 400
-                local isOnTop = gui.ZIndex > 50
+                local isBig = gui.AbsoluteSize.X > 400 and gui.AbsoluteSize.Y > 300
+                local isOnTop = gui.ZIndex > 20
+                local hasWhiteImage = false
+                if gui:IsA("ImageLabel") and gui.ImageColor3 then
+                    hasWhiteImage = (gui.ImageColor3.R > 0.9 and gui.ImageColor3.G > 0.9 and gui.ImageColor3.B > 0.9)
+                end
 
-                if isWhite and isBig and isOnTop then
-                    if not lightbornStored[gui] then
-                        lightbornStored[gui] = {
-                            Visible = gui.Visible,
-                            BackgroundTransparency = gui.BackgroundTransparency,
-                        }
-                    end
+                if (isWhite or hasWhiteImage) and isBig and isOnTop then
+                    storeOriginal(gui)
                     gui.Visible = false
                 end
             end
@@ -1138,12 +1196,27 @@ local function disableLightborn()
     for obj, data in pairs(lightbornStored) do
         if obj and obj.Parent then
             pcall(function()
-                if obj:IsA("Light") then
+                if data.type == "Light" then
                     obj.Brightness = data.Brightness
                     obj.Enabled = data.Enabled
-                elseif obj:IsA("ImageLabel") or obj:IsA("Frame") then
+                    obj.Range = data.Range
+                elseif data.type == "Highlight" then
+                    obj.FillTransparency = data.FillTransparency
+                    obj.OutlineTransparency = data.OutlineTransparency
+                    obj.Enabled = data.Enabled
+                elseif data.type == "BloomEffect" then
+                    obj.Intensity = data.Intensity
+                    obj.Enabled = data.Enabled
+                elseif data.type == "ColorCorrectionEffect" then
+                    obj.Brightness = data.Brightness
+                    obj.Contrast = data.Contrast
+                    obj.Enabled = data.Enabled
+                elseif data.type == "Gui" then
                     obj.Visible = data.Visible
                     obj.BackgroundTransparency = data.BackgroundTransparency
+                    if obj:IsA("ImageLabel") then
+                        obj.ImageTransparency = data.ImageTransparency
+                    end
                 end
             end)
         end
