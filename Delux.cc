@@ -1,5 +1,6 @@
 --[[
     delux.cc | Меню + Stretch + ESP + ESP2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications + Lightborn
+    ОПТИМИЗИРОВАННАЯ ВЕРСИЯ (все функции сохранены, FPS фиксы)
 ]]
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -946,7 +947,7 @@ local function stopPalletESP()
 end
 
 -----------------------------------------------------------
--- // FULLBRIGHT
+-- // FULLBRIGHT (оптимизировано: применяется только при изменении)
 -----------------------------------------------------------
 local originalLighting = {
     Brightness = Lighting.Brightness, ClockTime = Lighting.ClockTime,
@@ -972,16 +973,13 @@ local function restoreLighting()
     Lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
 end
 
-RunService.RenderStepped:Connect(function()
-    if getgenv().FullbrightEnabled then applyFullbright() end
-end)
-
 -----------------------------------------------------------
--- // LIGHTBORN V2 (расширенная защита от ослепления)
+-- // LIGHTBORN V2 (оптимизировано: раз в 0.5с вместо каждого кадра)
 -----------------------------------------------------------
 local lightbornStored = {}
 local lightbornConn = nil
 local lightbornLightingOrig = nil
+local lightbornAccum = 0
 
 local function isLightOurs(obj)
     local char = player.Character
@@ -1090,8 +1088,12 @@ local function enableLightborn()
     if lightbornConn then return end
     lightbornStored = {}
     lightbornLightingOrig = nil
+    lightbornAccum = 0
     applyLightborn()
-    lightbornConn = RunService.RenderStepped:Connect(function()
+    lightbornConn = RunService.Heartbeat:Connect(function(dt)
+        lightbornAccum += dt
+        if lightbornAccum < 0.5 then return end
+        lightbornAccum = 0
         applyLightborn()
     end)
 end
@@ -1152,11 +1154,15 @@ local function setLightborn(state)
 end
 
 -----------------------------------------------------------
--- // FOV
+-- // FOV (оптимизировано: изменяется только при необходимости)
 -----------------------------------------------------------
-RunService.RenderStepped:Connect(function()
+local lastFov = nil
+RunService.Heartbeat:Connect(function()
     local targetFov = getgenv().FOVValue or 70
-    if Camera.FieldOfView ~= targetFov then Camera.FieldOfView = targetFov end
+    if lastFov ~= targetFov then
+        lastFov = targetFov
+        Camera.FieldOfView = targetFov
+    end
 end)
 
 -----------------------------------------------------------
@@ -1281,16 +1287,17 @@ UserInputService.InputBegan:Connect(function(input, gp)
 end)
 
 -----------------------------------------------------------
--- // СИНИЙ ТУМАН
+-- // СИНИЙ ТУМАН (оптимизировано: применяется через Heartbeat с проверкой)
 -----------------------------------------------------------
 local origFog = { FogColor = Lighting.FogColor, FogStart = Lighting.FogStart, FogEnd = Lighting.FogEnd }
 local blueFogAtmosphere = nil
+local blueFogWasEnabled = false
 
 local function createBlueFog()
     Lighting.FogColor = Color3.fromRGB(40, 80, 200)
     Lighting.FogStart = 0
     Lighting.FogEnd = 60
-    if not blueFogAtmosphere then
+    if not blueFogAtmosphere or not blueFogAtmosphere.Parent then
         blueFogAtmosphere = Instance.new("Atmosphere")
         blueFogAtmosphere.Name = "delux_BlueFogAtmosphere"
         blueFogAtmosphere.Color = Color3.fromRGB(80, 130, 255)
@@ -1311,27 +1318,22 @@ local function destroyBlueFog()
     blueFogAtmosphere = nil
 end
 
-RunService.RenderStepped:Connect(function()
+RunService.Heartbeat:Connect(function()
     if getgenv().BlueFogEnabled then
-        Lighting.FogColor = Color3.fromRGB(40, 80, 200)
-        Lighting.FogStart = 0
-        Lighting.FogEnd = 60
-        if not blueFogAtmosphere or not blueFogAtmosphere.Parent then
-            blueFogAtmosphere = Instance.new("Atmosphere")
-            blueFogAtmosphere.Name = "delux_BlueFogAtmosphere"
-            blueFogAtmosphere.Color = Color3.fromRGB(80, 130, 255)
-            blueFogAtmosphere.Decay = Color3.fromRGB(60, 100, 200)
-            blueFogAtmosphere.Density = 0.45
-            blueFogAtmosphere.Glare = 0
-            blueFogAtmosphere.Haze = 2.5
-            blueFogAtmosphere.Offset = 0
-            blueFogAtmosphere.Parent = Lighting
+        if not blueFogWasEnabled then
+            blueFogWasEnabled = true
+            createBlueFog()
+        end
+    else
+        if blueFogWasEnabled then
+            blueFogWasEnabled = false
+            destroyBlueFog()
         end
     end
 end)
 
 -----------------------------------------------------------
--- // COMBAT
+-- // COMBAT (оптимизировано: проверка изменений перед записью)
 -----------------------------------------------------------
 local function applyCombat()
     local char = player.Character
@@ -1357,7 +1359,7 @@ local function applyCombat()
     end
 end
 
-RunService.RenderStepped:Connect(applyCombat)
+RunService.Heartbeat:Connect(applyCombat)
 player.CharacterAdded:Connect(function()
     task.wait(0.5)
     applyCombat()
@@ -1994,7 +1996,10 @@ createSlider(ContentScroll, "Brightness", 405, 0, 10, "FullbrightValue", functio
     if getgenv().FullbrightEnabled then applyFullbright() end
 end)
 
-createSlider(ContentScroll, "FOV", 460, 70, 120, "FOVValue", function(val) end)
+createSlider(ContentScroll, "FOV", 460, 70, 120, "FOVValue", function(val)
+    Camera.FieldOfView = val
+    lastFov = val
+end)
 
 -- COMBAT
 createButtonWithKeybind(CombatScroll, "WalkSpeed", 0, "WalkSpeedKeybind", function()
@@ -2031,7 +2036,7 @@ task.spawn(function()
     if getgenv().GenESPEnabled then startGenESP() end
     if getgenv().PalletESPEnabled then startPalletESP() end
     if getgenv().FullbrightEnabled then applyFullbright() end
-    if getgenv().BlueFogEnabled then createBlueFog() end
+    if getgenv().BlueFogEnabled then createBlueFog(); blueFogWasEnabled = true end
     if getgenv().NoclipEnabled then enableNoclip() end
     if getgenv().LightbornEnabled then enableLightborn() end
     if getgenv().KeybindListEnabled then
@@ -2041,7 +2046,8 @@ task.spawn(function()
     for key, updater in pairs(ToggleRegistry) do pcall(updater) end
     for key, updater in pairs(SliderRegistry) do pcall(updater) end
     for key, updater in pairs(KeybindUIRegistry) do pcall(updater) end
-    Camera.FieldOfView = getgenv().FOVValue or 70
+    lastFov = getgenv().FOVValue or 70
+    Camera.FieldOfView = lastFov
 end)
 
 -----------------------------------------------------------
