@@ -1,6 +1,5 @@
 --[[
-    delux.cc | Меню + Stretch + ESP + ESP2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications + Lightborn
-    ОПТИМИЗИРОВАННАЯ ВЕРСИЯ (все функции сохранены, FPS фиксы)
+    delux.cc | Меню + Stretch + ESP 2.0 + Combat + Watermark + Fullbright + FOV + TP + Fog + Save + Noclip + KeybindList + Notifications + Lightborn
 ]]
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -18,7 +17,6 @@ local player = Players.LocalPlayer
 -----------------------------------------------------------
 local FONT = Enum.Font.Gotham
 local FONT_BOLD = Enum.Font.GothamBold
-local FONT_MEDIUM = Enum.Font.GothamMedium
 
 -----------------------------------------------------------
 -- // СИСТЕМА СОХРАНЕНИЯ
@@ -34,7 +32,7 @@ if hasFS then
 end
 
 local Defaults = {
-    ESPEnabled = false, ESP2Enabled = false, GenESPEnabled = false, PalletESPEnabled = false,
+    ESP2Enabled = false, GenESPEnabled = false, PalletESPEnabled = false,
     FullbrightEnabled = false, FullbrightValue = 5, FOVValue = 70,
     WalkSpeedValue = 16, JumpEnabled = false, JumpPowerValue = 50,
     BlueFogEnabled = false, NoclipEnabled = false, LightbornEnabled = false,
@@ -133,7 +131,7 @@ local ok, _ = pcall(function() ScreenGui.Parent = CoreGui end)
 if not ok then ScreenGui.Parent = player:WaitForChild("PlayerGui") end
 
 -----------------------------------------------------------
--- // NOTIFICATION SYSTEM
+-- // NOTIFICATIONS
 -----------------------------------------------------------
 local NotifContainer = Instance.new("Frame")
 NotifContainer.Name = "Notifications"
@@ -156,7 +154,6 @@ local function showNotification(title, subtitle)
     activeNotifs += 1
 
     local notif = Instance.new("Frame")
-    notif.Name = "Notif"
     notif.Size = UDim2.new(1, 0, 0, 42)
     notif.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
     notif.BackgroundTransparency = 0.1
@@ -164,42 +161,34 @@ local function showNotification(title, subtitle)
     notif.ZIndex = 4501
     notif.Parent = NotifContainer
 
-    local notifCorner = Instance.new("UICorner")
-    notifCorner.CornerRadius = UDim.new(0, 8)
-    notifCorner.Parent = notif
+    local nc = Instance.new("UICorner")
+    nc.CornerRadius = UDim.new(0, 8)
+    nc.Parent = notif
 
-    local notifGradient = Instance.new("UIGradient")
-    notifGradient.Color = ColorSequence.new({
+    local ng = Instance.new("UIGradient")
+    ng.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 25)),
         ColorSequenceKeypoint.new(0.5, Color3.fromRGB(25, 30, 50)),
         ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25)),
     })
-    notifGradient.Rotation = 90
-    notifGradient.Parent = notif
+    ng.Rotation = 90
+    ng.Parent = notif
 
-    local notifStroke = Instance.new("UIStroke")
-    notifStroke.Thickness = 1.5
-    notifStroke.Color = Colors.Accent
-    notifStroke.Transparency = 0.3
-    notifStroke.Parent = notif
+    local ns = Instance.new("UIStroke")
+    ns.Thickness = 1.5
+    ns.Color = Colors.Accent
+    ns.Transparency = 0.3
+    ns.Parent = notif
 
-    local accentBar = Instance.new("Frame")
-    accentBar.Size = UDim2.new(0, 3, 1, 0)
-    accentBar.Position = UDim2.new(0, 0, 0, 0)
-    accentBar.BackgroundColor3 = Colors.Accent
-    accentBar.BorderSizePixel = 0
-    accentBar.Parent = notif
+    local ab = Instance.new("Frame")
+    ab.Size = UDim2.new(0, 3, 1, 0)
+    ab.BackgroundColor3 = Colors.Accent
+    ab.BorderSizePixel = 0
+    ab.Parent = notif
 
-    local accentCorner = Instance.new("UICorner")
-    accentCorner.CornerRadius = UDim.new(0, 8)
-    accentCorner.Parent = accentBar
-
-    local accentFix = Instance.new("Frame")
-    accentFix.Size = UDim2.new(0, 4, 1, -8)
-    accentFix.Position = UDim2.new(0, 0, 0, 4)
-    accentFix.BackgroundColor3 = Colors.Accent
-    accentFix.BorderSizePixel = 0
-    accentFix.Parent = notif
+    local abc = Instance.new("UICorner")
+    abc.CornerRadius = UDim.new(0, 8)
+    abc.Parent = ab
 
     local dot = Instance.new("Frame")
     dot.Size = UDim2.new(0, 8, 0, 8)
@@ -208,50 +197,48 @@ local function showNotification(title, subtitle)
     dot.BorderSizePixel = 0
     dot.Parent = notif
 
-    local dotCorner = Instance.new("UICorner")
-    dotCorner.CornerRadius = UDim.new(1, 0)
-    dotCorner.Parent = dot
+    local dc = Instance.new("UICorner")
+    dc.CornerRadius = UDim.new(1, 0)
+    dc.Parent = dot
 
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Text = title
-    titleLabel.Size = UDim2.new(1, -40, 0, 18)
-    titleLabel.Position = UDim2.new(0, 32, 0, 5)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.TextColor3 = Colors.Accent
-    titleLabel.Font = FONT_BOLD
-    titleLabel.TextSize = 12
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.Parent = notif
+    local tLbl = Instance.new("TextLabel")
+    tLbl.Text = title
+    tLbl.Size = UDim2.new(1, -40, 0, 18)
+    tLbl.Position = UDim2.new(0, 32, 0, 5)
+    tLbl.BackgroundTransparency = 1
+    tLbl.TextColor3 = Colors.Accent
+    tLbl.Font = FONT_BOLD
+    tLbl.TextSize = 12
+    tLbl.TextXAlignment = Enum.TextXAlignment.Left
+    tLbl.Parent = notif
 
-    local subLabel = Instance.new("TextLabel")
-    subLabel.Text = subtitle
-    subLabel.Size = UDim2.new(1, -40, 0, 14)
-    subLabel.Position = UDim2.new(0, 32, 0, 23)
-    subLabel.BackgroundTransparency = 1
-    subLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
-    subLabel.Font = FONT
-    subLabel.TextSize = 11
-    subLabel.TextXAlignment = Enum.TextXAlignment.Left
-    subLabel.Parent = notif
+    local sLbl = Instance.new("TextLabel")
+    sLbl.Text = subtitle
+    sLbl.Size = UDim2.new(1, -40, 0, 14)
+    sLbl.Position = UDim2.new(0, 32, 0, 23)
+    sLbl.BackgroundTransparency = 1
+    sLbl.TextColor3 = Color3.fromRGB(180, 180, 200)
+    sLbl.Font = FONT
+    sLbl.TextSize = 11
+    sLbl.TextXAlignment = Enum.TextXAlignment.Left
+    sLbl.Parent = notif
 
     notif.Position = UDim2.new(0, -320, 0, 0)
     notif.BackgroundTransparency = 1
-    notifStroke.Transparency = 1
-    titleLabel.TextTransparency = 1
-    subLabel.TextTransparency = 1
-    accentBar.BackgroundTransparency = 1
-    accentFix.BackgroundTransparency = 1
+    ns.Transparency = 1
+    tLbl.TextTransparency = 1
+    sLbl.TextTransparency = 1
+    ab.BackgroundTransparency = 1
     dot.BackgroundTransparency = 1
 
     TweenService:Create(notif, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Position = UDim2.new(0, 0, 0, 0),
         BackgroundTransparency = 0.1,
     }):Play()
-    TweenService:Create(notifStroke, TweenInfo.new(0.35), {Transparency = 0.3}):Play()
-    TweenService:Create(titleLabel, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
-    TweenService:Create(subLabel, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
-    TweenService:Create(accentBar, TweenInfo.new(0.35), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(accentFix, TweenInfo.new(0.35), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(ns, TweenInfo.new(0.35), {Transparency = 0.3}):Play()
+    TweenService:Create(tLbl, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
+    TweenService:Create(sLbl, TweenInfo.new(0.35), {TextTransparency = 0}):Play()
+    TweenService:Create(ab, TweenInfo.new(0.35), {BackgroundTransparency = 0}):Play()
     TweenService:Create(dot, TweenInfo.new(0.35), {BackgroundTransparency = 0}):Play()
 
     task.spawn(function()
@@ -275,11 +262,10 @@ local function showNotification(title, subtitle)
             Position = UDim2.new(0, -320, 0, 0),
             BackgroundTransparency = 1,
         }):Play()
-        TweenService:Create(notifStroke, TweenInfo.new(0.35), {Transparency = 1}):Play()
-        TweenService:Create(titleLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        TweenService:Create(subLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-        TweenService:Create(accentBar, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(accentFix, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(ns, TweenInfo.new(0.35), {Transparency = 1}):Play()
+        TweenService:Create(tLbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+        TweenService:Create(sLbl, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+        TweenService:Create(ab, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         TweenService:Create(dot, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         task.wait(0.4)
         notif:Destroy()
@@ -381,7 +367,6 @@ local function createWmSection(text, xPos, width, align, isAccent)
     label.TextSize = 13
     label.TextXAlignment = align or Enum.TextXAlignment.Center
     label.Parent = sec
-
     return label
 end
 
@@ -493,212 +478,7 @@ local function getTeamName(targetPlayer)
 end
 
 -----------------------------------------------------------
--- // ESP СТАРЫЙ
------------------------------------------------------------
-local Settings = {
-    KillerColor1 = Color3.fromRGB(80, 0, 0), KillerColor2 = Color3.fromRGB(255, 40, 40),
-    SurvivorColor1 = Color3.fromRGB(0, 0, 70), SurvivorColor2 = Color3.fromRGB(0, 150, 255),
-    KillerParticle = Color3.fromRGB(255, 60, 60), SurvivorParticle = Color3.fromRGB(0, 100, 255),
-    SpawnRate = 0.15, BoxThickness = 3.5, RotationSpeed = 3, MaxDistance = 2500,
-}
-
-local ParticleFolder = Instance.new("Folder", workspace)
-ParticleFolder.Name = "ESP_DarkBlue_Particles"
-
-local espInstances = {}
-local espConnections = {}
-local espPerPlayer = {}
-
-local function getTeamColors(targetPlayer)
-    local team = getTeamName(targetPlayer)
-    if team == "survivor" then return Settings.SurvivorColor1, Settings.SurvivorColor2, Settings.SurvivorParticle end
-    if team == "killer" then return Settings.KillerColor1, Settings.KillerColor2, Settings.KillerParticle end
-    return Color3.fromRGB(60,60,60), Color3.fromRGB(160,160,160), Color3.fromRGB(120,120,120)
-end
-
-local function RemoveVanillaName(char)
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
-end
-
-local function SpawnNeonParticle(pos, particleColor)
-    local part = Instance.new("Part")
-    part.Size = Vector3.new(0.3, 0.3, 0.3)
-    part.Position = pos + Vector3.new(math.random(-2,2), -3.5, math.random(-2,2))
-    part.Anchored = true
-    part.CanCollide = false
-    part.Shape = Enum.PartType.Ball
-    part.Material = Enum.Material.Neon
-    part.Color = particleColor
-    part.Parent = ParticleFolder
-
-    local tween = TweenService:Create(part, TweenInfo.new(1.8, Enum.EasingStyle.Quart),
-        { Position = part.Position + Vector3.new(0, 7, 0), Transparency = 1, Size = Vector3.new(0,0,0) })
-    tween:Play()
-    Debris:AddItem(part, 1.8)
-end
-
-local function createESPForChar(targetPlayer, char)
-    if not char or not char.Parent then return end
-    if getTeamName(targetPlayer) == "spectator" then return end
-    if espPerPlayer[targetPlayer] then return end
-
-    RemoveVanillaName(char)
-
-    local root = char:WaitForChild("HumanoidRootPart", 15)
-    if not root then return end
-
-    local playerName = targetPlayer.Name
-    local userId = targetPlayer.UserId
-    local color1, color2, particleColor = getTeamColors(targetPlayer)
-
-    local boxGui = Instance.new("BillboardGui")
-    boxGui.Name = "delux_ESPBox"
-    boxGui.Adornee = root
-    boxGui.Size = UDim2.new(4,0,5.5,0)
-    boxGui.AlwaysOnTop = true
-    boxGui.MaxDistance = Settings.MaxDistance
-    boxGui.Parent = player:WaitForChild("PlayerGui")
-
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(1,0,1,0)
-    mainFrame.BackgroundTransparency = 1
-    mainFrame.Parent = boxGui
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0.3, 0)
-    corner.Parent = mainFrame
-
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = Settings.BoxThickness
-    stroke.Color = Color3.new(1,1,1)
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Parent = mainFrame
-
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, color1),
-        ColorSequenceKeypoint.new(0.5, color2),
-        ColorSequenceKeypoint.new(1, color1)
-    })
-    gradient.Parent = stroke
-
-    local rotConn = RunService.RenderStepped:Connect(function()
-        if not boxGui.Parent then rotConn:Disconnect(); return end
-        gradient.Rotation += Settings.RotationSpeed
-    end)
-    table.insert(espConnections, rotConn)
-
-    local nameGui = Instance.new("BillboardGui")
-    nameGui.Name = "delux_ESPName"
-    nameGui.Adornee = root
-    nameGui.Size = UDim2.new(4,0,1.5,0)
-    nameGui.StudsOffset = Vector3.new(0, 3.5, 0)
-    nameGui.AlwaysOnTop = true
-    nameGui.MaxDistance = Settings.MaxDistance
-    nameGui.Parent = player:WaitForChild("PlayerGui")
-
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1,0,1,0)
-    container.BackgroundTransparency = 1
-    container.Parent = nameGui
-
-    local avatar = Instance.new("ImageLabel")
-    avatar.Size = UDim2.new(0.25,0,1,0)
-    avatar.BackgroundTransparency = 1
-    avatar.Parent = container
-
-    task.spawn(function()
-        local ok2, img = pcall(function()
-            return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-        end)
-        if ok2 then avatar.Image = img end
-    end)
-
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(0.75,0,1,0)
-    nameLabel.Position = UDim2.new(0.27,0,0,0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = playerName
-    nameLabel.TextScaled = true
-    nameLabel.TextColor3 = color2
-    nameLabel.TextStrokeTransparency = 0.3
-    nameLabel.Font = FONT_BOLD
-    nameLabel.Parent = container
-
-    task.spawn(function()
-        while boxGui.Parent do
-            local dist = (Camera.CFrame.Position - root.Position).Magnitude
-            if dist < 300 then SpawnNeonParticle(root.Position, particleColor) end
-            task.wait(Settings.SpawnRate)
-        end
-    end)
-
-    table.insert(espInstances, boxGui)
-    table.insert(espInstances, nameGui)
-    espPerPlayer[targetPlayer] = {boxGui = boxGui, nameGui = nameGui}
-
-    local conn
-    conn = RunService.RenderStepped:Connect(function()
-        if not char.Parent then
-            boxGui:Destroy()
-            nameGui:Destroy()
-            conn:Disconnect()
-            espPerPlayer[targetPlayer] = nil
-        end
-    end)
-    table.insert(espConnections, conn)
-end
-
-local function startESP()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= player then
-            if p.Character then task.spawn(createESPForChar, p, p.Character) end
-            local c
-            c = p.CharacterAdded:Connect(function(ch)
-                if getgenv().ESPEnabled then
-                    task.wait(0.3)
-                    createESPForChar(p, ch)
-                end
-            end)
-            table.insert(espConnections, c)
-        end
-    end
-    local pac
-    pac = Players.PlayerAdded:Connect(function(p)
-        if p == player then return end
-        p.CharacterAdded:Connect(function(ch)
-            if getgenv().ESPEnabled then
-                task.wait(0.3)
-                createESPForChar(p, ch)
-            end
-        end)
-    end)
-    table.insert(espConnections, pac)
-end
-
-local function stopESP()
-    for _, inst in ipairs(espInstances) do
-        if inst and inst.Parent then inst:Destroy() end
-    end
-    espInstances = {}
-    espPerPlayer = {}
-    for _, c in ipairs(espConnections) do
-        if c then pcall(function() c:Disconnect() end) end
-    end
-    espConnections = {}
-    for _, part in ipairs(ParticleFolder:GetChildren()) do part:Destroy() end
-end
-
-player.CharacterAdded:Connect(function()
-    if getgenv().ESPEnabled then
-        task.wait(0.5)
-        startESP()
-    end
-end)
-
------------------------------------------------------------
--- // ESP 2.0
+-- // ESP 2.0 (только Highlight, без имён)
 -----------------------------------------------------------
 local esp2Tracked = {}
 local esp2Connections = {}
@@ -947,7 +727,7 @@ local function stopPalletESP()
 end
 
 -----------------------------------------------------------
--- // FULLBRIGHT (оптимизировано: применяется только при изменении)
+-- // FULLBRIGHT
 -----------------------------------------------------------
 local originalLighting = {
     Brightness = Lighting.Brightness, ClockTime = Lighting.ClockTime,
@@ -973,13 +753,16 @@ local function restoreLighting()
     Lighting.OutdoorAmbient = originalLighting.OutdoorAmbient
 end
 
+RunService.RenderStepped:Connect(function()
+    if getgenv().FullbrightEnabled then applyFullbright() end
+end)
+
 -----------------------------------------------------------
--- // LIGHTBORN V2 (оптимизировано: раз в 0.5с вместо каждого кадра)
+-- // LIGHTBORN V2
 -----------------------------------------------------------
 local lightbornStored = {}
 local lightbornConn = nil
 local lightbornLightingOrig = nil
-local lightbornAccum = 0
 
 local function isLightOurs(obj)
     local char = player.Character
@@ -989,8 +772,7 @@ end
 
 local function storeOriginal(obj)
     if lightbornStored[obj] then return end
-    if obj:IsA("Light") then
-        lightbornStored[obj] = {t = "Light", Brightness = obj.Brightness, Enabled = obj.Enabled, Range = obj.Range}
+    if obj:IsA("Light") then        lightbornStored[obj] = {t = "Light", Brightness = obj.Brightness, Enabled = obj.Enabled, Range = obj.Range}
     elseif obj:IsA("Highlight") then
         lightbornStored[obj] = {t = "Highlight", FillTransparency = obj.FillTransparency, OutlineTransparency = obj.OutlineTransparency, Enabled = obj.Enabled}
     elseif obj:IsA("BloomEffect") then
@@ -1001,8 +783,6 @@ local function storeOriginal(obj)
         lightbornStored[obj] = {t = "ColorCorrectionEffect", Brightness = obj.Brightness, Contrast = obj.Contrast, Saturation = obj.Saturation, TintColor = obj.TintColor, Enabled = obj.Enabled}
     elseif obj:IsA("ImageLabel") or obj:IsA("Frame") or obj:IsA("TextLabel") then
         lightbornStored[obj] = {t = "Gui", Visible = obj.Visible, BackgroundTransparency = obj.BackgroundTransparency, ImageTransparency = obj.ImageTransparency or 0, TextTransparency = obj.TextTransparency or 0}
-    elseif obj:IsA("Atmosphere") then
-        lightbornStored[obj] = {t = "Atmosphere", Density = obj.Density, Color = obj.Color}
     end
 end
 
@@ -1018,7 +798,6 @@ local function applyLightborn()
             end
         end
     end
-
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("Highlight") then
             if obj.FillTransparency < 0.6 or obj.OutlineTransparency < 0.4 then
@@ -1027,7 +806,6 @@ local function applyLightborn()
             end
         end
     end
-
     for _, obj in ipairs(Lighting:GetChildren()) do
         if obj:IsA("BloomEffect") or obj:IsA("SunRaysEffect") then
             storeOriginal(obj)
@@ -1039,12 +817,8 @@ local function applyLightborn()
             end
         end
     end
-
     if not lightbornLightingOrig then
-        lightbornLightingOrig = {
-            Ambient = Lighting.Ambient, OutdoorAmbient = Lighting.OutdoorAmbient,
-            Brightness = Lighting.Brightness, FogColor = Lighting.FogColor, FogEnd = Lighting.FogEnd,
-        }
+        lightbornLightingOrig = {Ambient = Lighting.Ambient, OutdoorAmbient = Lighting.OutdoorAmbient}
     end
     if Lighting.Ambient.R > 0.9 and Lighting.Ambient.G > 0.9 and Lighting.Ambient.B > 0.9 then
         Lighting.Ambient = Color3.fromRGB(70, 70, 70)
@@ -1052,7 +826,6 @@ local function applyLightborn()
     if Lighting.OutdoorAmbient.R > 0.9 and Lighting.OutdoorAmbient.G > 0.9 and Lighting.OutdoorAmbient.B > 0.9 then
         Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 90)
     end
-
     pcall(function()
         for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
             if gui:IsA("ImageLabel") or gui:IsA("Frame") then
@@ -1069,79 +842,43 @@ local function applyLightborn()
             end
         end
     end)
-
-    pcall(function()
-        for _, gui in ipairs(CoreGui:GetDescendants()) do
-            if gui:IsA("ImageLabel") or gui:IsA("Frame") then
-                local isWhite = (gui.BackgroundColor3.R > 0.85 and gui.BackgroundColor3.G > 0.85 and gui.BackgroundColor3.B > 0.85)
-                local isBig = gui.AbsoluteSize.X > 300 and gui.AbsoluteSize.Y > 200
-                if isWhite and isBig then
-                    storeOriginal(gui)
-                    gui.Visible = false
-                end
-            end
-        end
-    end)
 end
 
 local function enableLightborn()
     if lightbornConn then return end
     lightbornStored = {}
     lightbornLightingOrig = nil
-    lightbornAccum = 0
     applyLightborn()
-    lightbornConn = RunService.Heartbeat:Connect(function(dt)
-        lightbornAccum += dt
-        if lightbornAccum < 0.5 then return end
-        lightbornAccum = 0
-        applyLightborn()
-    end)
+    lightbornConn = RunService.RenderStepped:Connect(function() applyLightborn() end)
 end
 
 local function disableLightborn()
     if lightbornConn then lightbornConn:Disconnect(); lightbornConn = nil end
-
     for obj, data in pairs(lightbornStored) do
         if obj and obj.Parent then
             pcall(function()
                 if data.t == "Light" then
-                    obj.Brightness = data.Brightness
-                    obj.Enabled = data.Enabled
-                    obj.Range = data.Range
+                    obj.Brightness = data.Brightness; obj.Enabled = data.Enabled; obj.Range = data.Range
                 elseif data.t == "Highlight" then
-                    obj.FillTransparency = data.FillTransparency
-                    obj.OutlineTransparency = data.OutlineTransparency
-                    obj.Enabled = data.Enabled
+                    obj.FillTransparency = data.FillTransparency; obj.OutlineTransparency = data.OutlineTransparency; obj.Enabled = data.Enabled
                 elseif data.t == "BloomEffect" then
-                    obj.Intensity = data.Intensity
-                    obj.Enabled = data.Enabled
+                    obj.Intensity = data.Intensity; obj.Enabled = data.Enabled
                 elseif data.t == "SunRaysEffect" then
-                    obj.Intensity = data.Intensity
-                    obj.Spread = data.Spread
-                    obj.Enabled = data.Enabled
+                    obj.Intensity = data.Intensity; obj.Spread = data.Spread; obj.Enabled = data.Enabled
                 elseif data.t == "ColorCorrectionEffect" then
-                    obj.Brightness = data.Brightness
-                    obj.Contrast = data.Contrast
-                    obj.Saturation = data.Saturation
-                    obj.TintColor = data.TintColor
-                    obj.Enabled = data.Enabled
+                    obj.Brightness = data.Brightness; obj.Contrast = data.Contrast; obj.Saturation = data.Saturation; obj.TintColor = data.TintColor; obj.Enabled = data.Enabled
                 elseif data.t == "Gui" then
-                    obj.Visible = data.Visible
-                    obj.BackgroundTransparency = data.BackgroundTransparency
+                    obj.Visible = data.Visible; obj.BackgroundTransparency = data.BackgroundTransparency
                     if obj:IsA("ImageLabel") then obj.ImageTransparency = data.ImageTransparency end
                     if obj:IsA("TextLabel") then obj.TextTransparency = data.TextTransparency end
                 end
             end)
         end
     end
-
     if lightbornLightingOrig then
         pcall(function()
             Lighting.Ambient = lightbornLightingOrig.Ambient
             Lighting.OutdoorAmbient = lightbornLightingOrig.OutdoorAmbient
-            Lighting.Brightness = lightbornLightingOrig.Brightness
-            Lighting.FogColor = lightbornLightingOrig.FogColor
-            Lighting.FogEnd = lightbornLightingOrig.FogEnd
         end)
     end
     lightbornStored = {}
@@ -1154,13 +891,11 @@ local function setLightborn(state)
 end
 
 -----------------------------------------------------------
--- // FOV (оптимизировано: изменяется только при необходимости)
+-- // FOV (РАБОЧИЙ, не сбрасывается)
 -----------------------------------------------------------
-local lastFov = nil
-RunService.Heartbeat:Connect(function()
+RunService.RenderStepped:Connect(function()
     local targetFov = getgenv().FOVValue or 70
-    if lastFov ~= targetFov then
-        lastFov = targetFov
+    if Camera.FieldOfView ~= targetFov then
         Camera.FieldOfView = targetFov
     end
 end)
@@ -1243,7 +978,6 @@ UserInputService.InputBegan:Connect(function(input, gp)
 
     if getgenv().ListeningForKeybind and getgenv().BindTarget then
         if input.KeyCode == Enum.KeyCode.Unknown then return end
-
         local bindName = ""
         if getgenv().BindTarget == "tp" then
             getgenv().TPKillerKeybind = input.KeyCode; bindName = "TP KILLER"
@@ -1252,7 +986,6 @@ UserInputService.InputBegan:Connect(function(input, gp)
         elseif getgenv().BindTarget == "noclip" then
             getgenv().NoclipKeybind = input.KeyCode; bindName = "NOCLIP"
         end
-
         getgenv().ListeningForKeybind = false
         getgenv().BindTarget = nil
         saveConfig()
@@ -1264,13 +997,11 @@ UserInputService.InputBegan:Connect(function(input, gp)
         teleportBehindKiller()
         showNotification("TP KILLER", "Teleported behind killer")
     end
-
     if getgenv().WalkSpeedKeybind and input.KeyCode == getgenv().WalkSpeedKeybind then
         getgenv().WalkSpeedActive = not getgenv().WalkSpeedActive
         saveConfig()
         showNotification("WALKSPEED", getgenv().WalkSpeedActive and "Activated" or "Deactivated")
     end
-
     if getgenv().NoclipKeybind and input.KeyCode == getgenv().NoclipKeybind then
         setNoclip(not getgenv().NoclipEnabled)
         saveConfig()
@@ -1287,17 +1018,16 @@ UserInputService.InputBegan:Connect(function(input, gp)
 end)
 
 -----------------------------------------------------------
--- // СИНИЙ ТУМАН (оптимизировано: применяется через Heartbeat с проверкой)
+-- // СИНИЙ ТУМАН
 -----------------------------------------------------------
-local origFog = { FogColor = Lighting.FogColor, FogStart = Lighting.FogStart, FogEnd = Lighting.FogEnd }
+local origFog = {FogColor = Lighting.FogColor, FogStart = Lighting.FogStart, FogEnd = Lighting.FogEnd}
 local blueFogAtmosphere = nil
-local blueFogWasEnabled = false
 
 local function createBlueFog()
     Lighting.FogColor = Color3.fromRGB(40, 80, 200)
     Lighting.FogStart = 0
     Lighting.FogEnd = 60
-    if not blueFogAtmosphere or not blueFogAtmosphere.Parent then
+    if not blueFogAtmosphere then
         blueFogAtmosphere = Instance.new("Atmosphere")
         blueFogAtmosphere.Name = "delux_BlueFogAtmosphere"
         blueFogAtmosphere.Color = Color3.fromRGB(80, 130, 255)
@@ -1318,22 +1048,27 @@ local function destroyBlueFog()
     blueFogAtmosphere = nil
 end
 
-RunService.Heartbeat:Connect(function()
+RunService.RenderStepped:Connect(function()
     if getgenv().BlueFogEnabled then
-        if not blueFogWasEnabled then
-            blueFogWasEnabled = true
-            createBlueFog()
-        end
-    else
-        if blueFogWasEnabled then
-            blueFogWasEnabled = false
-            destroyBlueFog()
+        Lighting.FogColor = Color3.fromRGB(40, 80, 200)
+        Lighting.FogStart = 0
+        Lighting.FogEnd = 60
+        if not blueFogAtmosphere or not blueFogAtmosphere.Parent then
+            blueFogAtmosphere = Instance.new("Atmosphere")
+            blueFogAtmosphere.Name = "delux_BlueFogAtmosphere"
+            blueFogAtmosphere.Color = Color3.fromRGB(80, 130, 255)
+            blueFogAtmosphere.Decay = Color3.fromRGB(60, 100, 200)
+            blueFogAtmosphere.Density = 0.45
+            blueFogAtmosphere.Glare = 0
+            blueFogAtmosphere.Haze = 2.5
+            blueFogAtmosphere.Offset = 0
+            blueFogAtmosphere.Parent = Lighting
         end
     end
 end)
 
 -----------------------------------------------------------
--- // COMBAT (оптимизировано: проверка изменений перед записью)
+-- // COMBAT
 -----------------------------------------------------------
 local function applyCombat()
     local char = player.Character
@@ -1359,7 +1094,7 @@ local function applyCombat()
     end
 end
 
-RunService.Heartbeat:Connect(applyCombat)
+RunService.RenderStepped:Connect(applyCombat)
 player.CharacterAdded:Connect(function()
     task.wait(0.5)
     applyCombat()
@@ -1514,7 +1249,9 @@ end
 VisualBtn.MouseButton1Click:Connect(showVisual)
 CombatBtn.MouseButton1Click:Connect(showCombat)
 
--- KEYBIND LIST
+-----------------------------------------------------------
+-- // KEYBIND LIST
+-----------------------------------------------------------
 local KeybindListFrame = Instance.new("Frame")
 KeybindListFrame.Name = "KeybindList"
 KeybindListFrame.Size = UDim2.new(0, 220, 0, 60)
@@ -1531,15 +1268,6 @@ KeybindListFrame.Parent = ScreenGui
 local KbCorner = Instance.new("UICorner")
 KbCorner.CornerRadius = UDim.new(0, 8)
 KbCorner.Parent = KeybindListFrame
-
-local KbGradient = Instance.new("UIGradient")
-KbGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 25)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(25, 30, 50)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25)),
-})
-KbGradient.Rotation = 90
-KbGradient.Parent = KeybindListFrame
 
 local KbStroke = Instance.new("UIStroke")
 KbStroke.Thickness = 1.5
@@ -1588,7 +1316,6 @@ local function rebuildKeybindList()
     if #entries == 0 then
         local emptyLabel = Instance.new("TextLabel")
         emptyLabel.Size = UDim2.new(1, 0, 0, 20)
-        emptyLabel.Position = UDim2.new(0, 0, 0, 0)
         emptyLabel.BackgroundTransparency = 1
         emptyLabel.Text = "No keybinds"
         emptyLabel.TextColor3 = Color3.fromRGB(120, 120, 140)
@@ -1650,7 +1377,9 @@ KeybindListFrame:GetPropertyChangedSignal("Position"):Connect(function()
     saveConfig()
 end)
 
--- UI
+-----------------------------------------------------------
+-- // UI ЭЛЕМЕНТЫ
+-----------------------------------------------------------
 local ToggleRegistry = {}
 local SliderRegistry = {}
 local KeybindUIRegistry = {}
@@ -1954,51 +1683,46 @@ local function createSlider(parent, name, yPos, minVal, maxVal, settingKey, call
 end
 
 -- VISUAL
-createToggle(ContentScroll, "ESP", "включать сразу в катке", 0, "ESPEnabled", function(state)
-    if state then startESP() else stopESP() end
-end)
-
-createToggle(ContentScroll, "ESP 2.0", "surv=зелёный / killer=красный", 45, "ESP2Enabled", function(state)
+createToggle(ContentScroll, "ESP 2.0", "surv=зелёный / killer=красный", 0, "ESP2Enabled", function(state)
     if state then startESP2() else stopESP2() end
 end)
 
-createToggle(ContentScroll, "ESP Generator", "", 90, "GenESPEnabled", function(state)
+createToggle(ContentScroll, "ESP Generator", "", 45, "GenESPEnabled", function(state)
     if state then startGenESP() else stopGenESP() end
 end)
 
-createToggle(ContentScroll, "ESP Pallet", "", 135, "PalletESPEnabled", function(state)
+createToggle(ContentScroll, "ESP Pallet", "", 90, "PalletESPEnabled", function(state)
     if state then startPalletESP() else stopPalletESP() end
 end)
 
-createToggle(ContentScroll, "Fullbright", "", 180, "FullbrightEnabled", function(state)
+createToggle(ContentScroll, "Fullbright", "", 135, "FullbrightEnabled", function(state)
     if state then applyFullbright() else restoreLighting() end
 end)
 
-createToggle(ContentScroll, "Blue Fog", "", 225, "BlueFogEnabled", function(state)
+createToggle(ContentScroll, "Blue Fog", "", 180, "BlueFogEnabled", function(state)
     if state then createBlueFog() else destroyBlueFog() end
 end)
 
-createToggle(ContentScroll, "Keybind List", "", 270, "KeybindListEnabled", function(state)
+createToggle(ContentScroll, "Keybind List", "", 225, "KeybindListEnabled", function(state)
     KeybindListFrame.Visible = state
     if state then rebuildKeybindList() end
 end)
 
-createToggle(ContentScroll, "Lightborn", "не ослепляться фонариком", 315, "LightbornEnabled", function(state)
+createToggle(ContentScroll, "Lightborn", "не ослепляться фонариком", 270, "LightbornEnabled", function(state)
     setLightborn(state)
 end)
 
-createButtonWithKeybind(ContentScroll, "TP KILLER", 360, "TPKillerKeybind", function()
+createButtonWithKeybind(ContentScroll, "TP KILLER", 315, "TPKillerKeybind", function()
     teleportBehindKiller()
     showNotification("TP KILLER", "Teleported behind killer")
 end, "tp")
 
-createSlider(ContentScroll, "Brightness", 405, 0, 10, "FullbrightValue", function(val)
+createSlider(ContentScroll, "Brightness", 360, 0, 10, "FullbrightValue", function(val)
     if getgenv().FullbrightEnabled then applyFullbright() end
 end)
 
-createSlider(ContentScroll, "FOV", 460, 70, 120, "FOVValue", function(val)
+createSlider(ContentScroll, "FOV", 415, 70, 120, "FOVValue", function(val)
     Camera.FieldOfView = val
-    lastFov = val
 end)
 
 -- COMBAT
@@ -2031,12 +1755,11 @@ end, "noclip")
 -----------------------------------------------------------
 task.spawn(function()
     task.wait(1)
-    if getgenv().ESPEnabled then startESP() end
     if getgenv().ESP2Enabled then startESP2() end
     if getgenv().GenESPEnabled then startGenESP() end
     if getgenv().PalletESPEnabled then startPalletESP() end
     if getgenv().FullbrightEnabled then applyFullbright() end
-    if getgenv().BlueFogEnabled then createBlueFog(); blueFogWasEnabled = true end
+    if getgenv().BlueFogEnabled then createBlueFog() end
     if getgenv().NoclipEnabled then enableNoclip() end
     if getgenv().LightbornEnabled then enableLightborn() end
     if getgenv().KeybindListEnabled then
@@ -2046,8 +1769,7 @@ task.spawn(function()
     for key, updater in pairs(ToggleRegistry) do pcall(updater) end
     for key, updater in pairs(SliderRegistry) do pcall(updater) end
     for key, updater in pairs(KeybindUIRegistry) do pcall(updater) end
-    lastFov = getgenv().FOVValue or 70
-    Camera.FieldOfView = lastFov
+    Camera.FieldOfView = getgenv().FOVValue or 70
 end)
 
 -----------------------------------------------------------
